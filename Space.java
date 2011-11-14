@@ -215,14 +215,50 @@ public class Space extends JFrame implements GLEventListener {
 		if(drawType == 0){
 			drawSpine(gl);
 		} else {
-                        //gl.glRotatef(45,1,1,0);
                         GLUquadric SOLID = glu.gluNewQuadric();
                         GLUquadric stars = glu.gluNewQuadric();
-                        glu.gluQuadricDrawStyle(stars, glu.GLU_POINT);
-                        glu.gluQuadricDrawStyle( SOLID, glu.GLU_FILL);
-                        //glu.gluQuadricDrawStyle(qobj0, GLU.GLU_FLAT); 
+                        glu.gluQuadricDrawStyle(stars, GLU.GLU_POINT);
+                        gl.glPushMatrix();
+                        drawPlanet(gl);
+                        gl.glPopMatrix();
+                        gl.glPushMatrix();
+                        drawAsteroid(gl, SOLID);
+                        gl.glPopMatrix();
+                        gl.glPushMatrix();
+                        drawShip(gl, SOLID);
+                        gl.glPopMatrix();
+                }
+		gl.glPopMatrix();
+		glDrawable.swapBuffers();
+	}
+        public void drawShip(final GL2 gl, GLUquadric SOLID){
+                        glu.gluQuadricDrawStyle( SOLID, GLU.GLU_FILL);
                         glu.gluQuadricNormals( SOLID, GLU.GLU_SMOOTH );
-                        //gl.glColor4f(0, 1, 1, 1);
+                        gl.glTranslatef(200, 0, 0);
+                        gl.glTranslatef(FORWARD, LEFT, RIGHT); 
+                        gl.glPushMatrix();
+                        gl.glRotated(90, 1, 0, 0);
+                        gl.glRotated(-90, 0, 1, 0);
+                        gl.glPushMatrix();
+                        gl.glTranslatef(0,0,8);
+                        glu.gluCylinder(SOLID, 5, 5, 15, 10, 10);
+                        gl.glTranslatef(0, 0, 15);
+                        glu.gluDisk(SOLID, 0, 5, 10, 10);
+                        gl.glPushMatrix();
+                        /*gl.glBegin(GL.GL_TRIANGLES);        // Drawing Using Triangles
+                        gl.glVertex3f(0.0f, -15.0f, 0.0f);
+                        gl.glVertex3f(0.0f, 0.0f, -22.0f);
+                        gl.glVertex3f(0.0f, 15.0f, 10.0f);
+                        gl.glEnd();*/                         // Finished Drawing The Triangle
+                        gl.glPopMatrix();
+                        gl.glPopMatrix();
+                        glu.gluCylinder(SOLID, 0, 5, 8, 10, 10);
+                        gl.glPopMatrix();
+        }
+        public void drawPlanet(final GL2 gl){
+                        GLUquadric SOLID = glu.gluNewQuadric();
+                        glu.gluQuadricDrawStyle( SOLID, GLU.GLU_FILL);
+                        glu.gluQuadricNormals( SOLID, GLU.GLU_SMOOTH );
                         gl.glBegin(GL.GL_LINE_LOOP);
                         gl.glVertex3f(0, 0, 0);
                         gl.glVertex3f(400, 0, 0);
@@ -236,52 +272,23 @@ public class Space extends JFrame implements GLEventListener {
                         gl.glVertex3f(0, 0, 400);
                         gl.glEnd();
                         glu.gluSphere(SOLID, 100f, 50, 50);
-                        //glu.gluSphere(stars, 1000f, 100, 100);
-			gl.glTranslatef(300, 0, 0);
-                        gl.glTranslatef(FORWARD, LEFT, RIGHT); 
-                        //glu.gluSphere(qobj0, 5, 100, 100);
-                        gl.glPushMatrix();
-                        gl.glRotated(90, 1, 0, 0);
-                        gl.glRotated(-90, 0, 1, 0);
-                        gl.glPushMatrix();
-                        gl.glTranslatef(0,0,8);
-                        glu.gluCylinder(SOLID, 5, 5, 15, 10, 10);
-                        gl.glTranslatef(0, 0, 15);
-                        glu.gluDisk(SOLID, 0, 5, 10, 10);
-                        gl.glPushMatrix();
-                        //gl.glTranslatef(10,0,0);
-                        gl.glBegin(GL.GL_TRIANGLES);        // Drawing Using Triangles
-                        gl.glVertex3f(0.0f, -15.0f, 0.0f);
-                        gl.glVertex3f(0.0f, 0.0f, -22.0f);
-                        gl.glVertex3f(0.0f, 15.0f, 10.0f);
-                        /*
-                        gl.glVertex3f(-1.0f, -15.0f, 0.0f);
-                        gl.glVertex3f(0.0f, 0.0f, -22.0f);
-                        gl.glVertex3f(-1.0f, 15.0f, 0.0f);
-                        
-                        gl.glVertex3f(-1.0f, -15.0f, 0.0f);
-                        gl.glVertex3f(0.0f, 0.0f, -22.0f);
-                        gl.glVertex3f(1.0f, -15.0f, 0.0f);
-                        
-                        gl.glVertex3f(-1.0f, 15.0f, 0.0f);
-                        gl.glVertex3f(0.0f, 0.0f, -22.0f);
-                        gl.glVertex3f(1.0f, 15.0f, 0.0f);
-                        */
-                        
-                        
-                        gl.glEnd();                         // Finished Drawing The Triangle
-                        gl.glPopMatrix();
-                        gl.glPopMatrix();
-                        
-                        glu.gluCylinder(SOLID, 0, 5, 8, 10, 10);
-                        gl.glPopMatrix();
-                        //drawToroid(gl);
-		}
-		gl.glPopMatrix();
-		glDrawable.swapBuffers();
-	}
+        }
 
-
+        public void drawAlien(final GL2 gl, GLUquadric SOLID){
+            
+        }
+        public void drawAsteroid(final GL2 gl, GLUquadric SOLID){
+            for(int i = 0; i < 10; i++){
+                
+                gl.glTranslatef(50f,0f,0f);
+                gl.glRotated(i*10,1,1,1);
+                glu.gluSphere(SOLID, 15f, 10, 10);
+            }
+            
+        }
+        
+        
+        
 	public void displayChanged(final GLAutoDrawable glDrawable, final boolean modeChanged, final boolean deviceChanged){
 		glDrawable.getGL().getGL2().glViewport(0, 0, getWidth(), getHeight());
 		display(glDrawable);
