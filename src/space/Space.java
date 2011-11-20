@@ -1,15 +1,3 @@
-
-/**
- * This program uses openGL through the Java OpenGL (JOGL)
- * libraries.  It creates a robot with independent points
- * of rotation at all arm and leg joints, as well as at
- * the hinge of the jaw, and at the bottom of the torso.
- * Each joint is randomly assigned an update value which
- * controls the change in the joint angle during each
- * update.  This ensures that all joints rotate independently.
- * The program can be stopped by pressing the escape key or
- * closing the window.
- */
 package space;
 import java.io.InputStream;
 import java.awt.BorderLayout;
@@ -19,6 +7,8 @@ import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -147,6 +137,9 @@ public class Space extends JFrame implements GLEventListener {
 	private double rotatex;
 	private double rotatey;
         private Texture earthTexture;
+        private Texture asteroidTexture;
+        private Texture shipTexture;
+        private Texture alienShipTexture;
         GLProfile glp = GLProfile.getDefault();
 
 	public Space(float a, float b, int p, int q, int n, int m, float r){
@@ -214,13 +207,18 @@ public class Space extends JFrame implements GLEventListener {
 		// set camera position/direction
 		gl.glMatrixMode(GL2.GL_MODELVIEW);
 		gl.glLoadIdentity();
-		glu.gluLookAt(cameraPosition[0], cameraPosition[1], cameraPosition[2], // camera position
+		glu.gluLookAt(cameraPosition[0], cameraPosition[1], cameraPosition[2]+50, // camera position
 				cameraPosition[0], cameraPosition[1], 0.0f, 	// look at position
 				0.0f, 1.0f, 0.0f);	// up direction
+
                 
+
 		gl.glPushMatrix();
 		gl.glRotated(rotatex, 0.0, 1.0, 0.0);
 		gl.glRotated(rotatey, 1.0, 0.0, 0.0);
+                //glu.gluLookAt(200+FORWARD,LEFT,RIGHT,
+                //                FORWARD+2000,LEFT,RIGHT,
+		//		1.0f, 0.0f, 0.0f);	// up direction
 		if(drawType == 0){
 			drawSpine(gl);
 		} else {
@@ -229,15 +227,15 @@ public class Space extends JFrame implements GLEventListener {
                         glu.gluQuadricDrawStyle(stars, GLU.GLU_POINT);
                         gl.glPushMatrix();
                         glu.gluQuadricTexture(SOLID, true);
-                        earthTexture.enable(gl);
-                        earthTexture.bind(gl);
+                        //earthTexture.enable(gl);
+                        //earthTexture.bind(gl);
                         gl.glPushMatrix();
                         drawPlanet(gl, SOLID);
                         gl.glPopMatrix();
-                        earthTexture.disable(gl);
+                        //earthTexture.disable(gl);
                         gl.glPopMatrix();
                         gl.glPushMatrix();
-                        gl.glColor3f(1,0,0);
+                        //gl.glColor3f(1,0,0);
                         drawAsteroid(gl, SOLID);
                         gl.glPopMatrix();
                         gl.glPushMatrix();
@@ -253,13 +251,21 @@ public class Space extends JFrame implements GLEventListener {
         public void drawShip(final GL2 gl, GLUquadric SOLID){
                         glu.gluQuadricDrawStyle( SOLID, GLU.GLU_FILL);
                         glu.gluQuadricNormals( SOLID, GLU.GLU_SMOOTH );
-                        gl.glTranslatef(200, 0, 0);
-                        gl.glTranslatef(FORWARD, LEFT, RIGHT); 
+                        shipTexture.enable(gl);
+                        shipTexture.bind(gl);
+                        //gl.glTranslatef(200, 0, 0);
+                        gl.glTranslatef(200+FORWARD,LEFT,-RIGHT);
+                        //cameraPosition[2] = 150 + FORWARD;
+                        //cameraPosition[1] = RIGHT;
+                        //cameraPosition[0] = LEFT;
+                        
                         
                         gl.glPushMatrix();
                         gl.glRotated(90, 1, 0, 0);
                         gl.glRotated(-90, 0, 1, 0);
+
                         gl.glPushMatrix();
+                        
                         gl.glTranslatef(0,0,8);
                         glu.gluCylinder(SOLID, 5, 5, 15, 10, 10);
                         gl.glTranslatef(0, 0, 15);
@@ -274,14 +280,19 @@ public class Space extends JFrame implements GLEventListener {
                         gl.glPopMatrix();
                         glu.gluCylinder(SOLID, 0, 5, 8, 10, 10);
                         gl.glPopMatrix();
+                        shipTexture.disable(gl);
+                       
                         
         }
         public void drawPlanet(final GL2 gl, GLUquadric SOLID){
                         glu.gluQuadricDrawStyle( SOLID, GLU.GLU_FILL);
                         glu.gluQuadricNormals( SOLID, GLU.GLU_SMOOTH );
-                        
+
                         glu.gluQuadricDrawStyle( SOLID, GLU.GLU_FILL);
                         glu.gluQuadricNormals( SOLID, GLU.GLU_SMOOTH );
+                        earthTexture.enable(gl);
+                        earthTexture.bind(gl);
+
                         //Axis of Planet
                         gl.glBegin(GL.GL_LINE_LOOP);
                         gl.glVertex3f(0, 0, 0);
@@ -296,48 +307,60 @@ public class Space extends JFrame implements GLEventListener {
                         gl.glVertex3f(0, 0, 400);
                         gl.glEnd();
                         glu.gluSphere(SOLID, 100f, 50, 50);
-                        
+                        earthTexture.disable(gl);
         }
 
         public void drawAlienShip(final GL2 gl, GLUquadric SOLID){
             glu.gluQuadricDrawStyle( SOLID, GLU.GLU_FILL);
             glu.gluQuadricNormals( SOLID, GLU.GLU_SMOOTH );
-            gl.glTranslatef(0f,200f,0f);
+            gl.glTranslatef(250f,30f,50f);
             gl.glPushMatrix();
             gl.glBegin(GL.GL_TRIANGLES);
-            gl.glVertex3f(0,-15,0);
-            gl.glVertex3f(0,0,15);
-            gl.glVertex3f(0,15,0);
-            gl.glColor4f(1,0,0,1);
-            gl.glVertex3f(0,-15,0);
-            gl.glVertex3f(0,0,15);
-            gl.glVertex3f(10,-15,0);
+
+            gl.glColor3f(1,0,0);
+            gl.glVertex3f(-5,0,5);
+            gl.glVertex3f(0,10,0);
+            gl.glVertex3f(5,0,5);
+
+            gl.glColor3f(0,0,1);
+            gl.glVertex3f(-5,0,-5);
+            gl.glVertex3f(0,10,0);
+            gl.glVertex3f(-5,0,5);
+
+            gl.glColor3f(0,1,0);
+            gl.glVertex3f(-5,0,-5);
+            gl.glVertex3f(0,10,0);
+            gl.glVertex3f(5,0,-5);
+
+            gl.glColor3f(1,1,1);
+            gl.glVertex3f(5,0,5);
+            gl.glVertex3f(0,10,0);
+            gl.glVertex3f(5,0,-5);
+
+            gl.glVertex3f(-5,0,5);
+            gl.glVertex3f(5,0,5);
+            gl.glVertex3f(-5,0,-5);
+
+            gl.glVertex3f(-5,0,-5);
+            gl.glVertex3f(5,0,5);
+            gl.glVertex3f(5,0,-5);
             
-            gl.glVertex3f(0,15,0);
-            gl.glVertex3f(0,0,15);
-            gl.glVertex3f(10,15,0);
-            
-            gl.glVertex3f(10,-15,0);
-            gl.glVertex3f(0,0,15);
-            gl.glVertex3f(10,15,0);
-            //NEED BACK SIDE OF SHIP
-            
+
+
             gl.glEnd();
             gl.glPopMatrix();
         }
         public void drawAsteroid(final GL2 gl, GLUquadric SOLID){
-            gl.glTranslatef(250f,-300f,0f);
-            for(int i = -5; i < 5; i++){
-                
-                gl.glTranslatef(0f,50f,0f);
-                //gl.glRotated(i*10,0,1,1);
-                glu.gluSphere(SOLID, 8f, 5, 5);
-            }
+            gl.glTranslatef(250f,0f,0f);
+            asteroidTexture.enable(gl);
+            asteroidTexture.bind(gl);
+            glu.gluSphere(SOLID, 8f, 5, 5);
+            asteroidTexture.disable(gl);
             
         }
-        
-        
-        
+
+
+
 	public void displayChanged(final GLAutoDrawable glDrawable, final boolean modeChanged, final boolean deviceChanged){
 		glDrawable.getGL().getGL2().glViewport(0, 0, getWidth(), getHeight());
 		display(glDrawable);
@@ -369,7 +392,7 @@ public class Space extends JFrame implements GLEventListener {
 		gl.glBindBuffer(GL2.GL_ARRAY_BUFFER, vertexBufferObjects[0]);
 		gl.glVertexPointer(3, GL2.GL_DOUBLE, 0, 0);
 		gl.glDrawArrays(GL2.GL_LINE_LOOP, 0, N);
-                
+
 	}
 
 	private void drawToroid(final GL2 gl) {
@@ -424,13 +447,14 @@ public class Space extends JFrame implements GLEventListener {
 	@Override
 	public void init(final GLAutoDrawable glDrawable) {
 		glu = new GLU();
-                
+
 		final GL2 gl = glDrawable.getGL().getGL2();
 		gl.glShadeModel(GL2.GL_SMOOTH);
 		gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	    gl.glEnable(GL2.GL_DEPTH_TEST);
 	    gl.glDepthFunc(GL2.GL_LEQUAL);
-		// set material properties
+		/*
+                // set material properties
 		gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_AMBIENT, materialAmbient, 0);
 		gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_DIFFUSE, materialDiffuse, 0);
 		gl.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_SPECULAR, materialSpecular, 0);
@@ -443,24 +467,28 @@ public class Space extends JFrame implements GLEventListener {
 		gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, lightDiffuse, 0);
 		gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, lightSpecular, 0);
 		gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, lightPosition, 0);
+*/
 
-                
 		gl.glPointSize(1.0f);
 		gl.glLineWidth(1.0f);
-                
+
                 try {
-                    
-                    InputStream stream = getClass().getResourceAsStream("moonmap1k.png");
-                    TextureData data = TextureIO.newTextureData(glp, stream, false, "png");
-                    //TextureData data2 = TextureIO.newTextureData(null, stream, false, "png");  
-                    //data = TextureIO.newTextureData(gl, stream, false, "png");
+
+                    InputStream stream = getClass().getResourceAsStream("planet2.jpg");
+                    TextureData data = TextureIO.newTextureData(glp, stream, false, "jpg");
                     earthTexture = TextureIO.newTexture(data);
+                    stream = getClass().getResourceAsStream("asteroid1.jpg");
+                    data = TextureIO.newTextureData(glp,stream,false,"jpg");
+                    asteroidTexture = TextureIO.newTexture(data);
+                    stream = getClass().getResourceAsStream("shiptexture1.jpg");
+                    data = TextureIO.newTextureData(glp,stream,false,"jpg");
+                    shipTexture = TextureIO.newTexture(data);
                 }
                 catch (IOException exc) {
                     exc.printStackTrace();
                     System.exit(1);
                 }
-                
+
 		loadToroid(gl);
 	}
 
@@ -511,8 +539,8 @@ public class Space extends JFrame implements GLEventListener {
 //		printVertices();
 //		printNormals();
 		loadVBOs(gl);
-                
-                
+
+
 	}
 
 	private void loadVBOs(final GL2 gl) {
@@ -545,7 +573,7 @@ public class Space extends JFrame implements GLEventListener {
 		normalBuff.rewind();
 		gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vertexBufferObjects[3]);
 		gl.glBufferData(GL.GL_ARRAY_BUFFER, surfaceNormals.length*Buffers.SIZEOF_DOUBLE, normalBuff, GL.GL_STATIC_DRAW);
-                
+
 	}
 
 	/**
@@ -626,7 +654,7 @@ public class Space extends JFrame implements GLEventListener {
 		return normal;
 	}
 
-	
+
 
 	/* (non-Javadoc)
 	 * @see javax.media.opengl.GLEventListener#reshape(javax.media.opengl.GLAutoDrawable, int, int, int, int)
@@ -661,6 +689,7 @@ public class Space extends JFrame implements GLEventListener {
 				if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
 					System.exit(0);
 				}
+                                
 				if(e.getKeyCode() == KeyEvent.VK_Z){
 					cameraPosition[2] += ZOOM_DELTA;
 					if(cameraPosition[2] > maxPosition){
@@ -704,17 +733,18 @@ public class Space extends JFrame implements GLEventListener {
 					drawType = 2;
 				}
                                 if(e.getKeyCode() == KeyEvent.VK_UP){
-                                    FORWARD = FORWARD + .25f;
+                                    FORWARD = FORWARD + 5f;
                                 }
                                 if(e.getKeyCode() == KeyEvent.VK_DOWN){
-                                    FORWARD = FORWARD - .25f;
+                                    FORWARD = FORWARD - 5f;
                                 }
                                 if(e.getKeyCode() == KeyEvent.VK_LEFT){
-                                    RIGHT = RIGHT - .25f;
+                                    RIGHT = RIGHT + 5f;
                                 }
                                 if(e.getKeyCode() == KeyEvent.VK_RIGHT){
-                                    RIGHT = RIGHT + .25f;
+                                    RIGHT = RIGHT - 5f;
                                 }
+
 			}
 			@Override
 			public void keyReleased(final KeyEvent e) {
@@ -724,7 +754,6 @@ public class Space extends JFrame implements GLEventListener {
 			}
 		});
 		MouseInputAdapter mia = new MouseInputAdapter(){
-
 			@Override
 			public void mouseDragged(MouseEvent e) {
 				dx = e.getX()-mousex;
@@ -732,16 +761,16 @@ public class Space extends JFrame implements GLEventListener {
 				rotatex += dx*DEGREES_PER_PIXEL;
 				rotatey += dy*DEGREES_PER_PIXEL;
 				if (rotatex > 360){
-					rotatex = 360;
+					rotatex = 0;
 				}
 				if(rotatex < -360){
-					rotatex = -360;
+					rotatex = -0;
 				}
 				if(rotatey > 360){
-					rotatey = 360;
+					rotatey = 0;
 				}
 				if(rotatey < -360){
-					rotatey = -360;
+					rotatey = -0;
 				}
 				dx = 0;
 				dy = 0;
@@ -755,9 +784,35 @@ public class Space extends JFrame implements GLEventListener {
 				mousey = e.getY();
 			}
 
+                        
+
 
 
 		};
+
+                MouseWheelListener mwl = new MouseWheelListener(){
+                    @Override
+                        public void mouseWheelMoved(MouseWheelEvent e){
+                            int notches = e.getWheelRotation();
+                            
+                            if(notches > 0){
+                                cameraPosition[2] += ZOOM_DELTA;
+				if(cameraPosition[2] > maxPosition){
+					cameraPosition[2] = maxPosition;
+				}
+                            } else{
+                                cameraPosition[2] -= ZOOM_DELTA;
+				if(cameraPosition[2] < 0.0f){
+					cameraPosition[2] = 0.0f;
+				}
+                            }
+
+                        }
+                };
+
+
+
+                glcanvas.addMouseWheelListener(mwl);
 		glcanvas.addMouseListener(mia);
 		glcanvas.addMouseMotionListener(mia);
 		this.getContentPane().add(glcanvas, BorderLayout.CENTER);
@@ -796,6 +851,3 @@ public class Space extends JFrame implements GLEventListener {
 
 
 }
-
-
-
